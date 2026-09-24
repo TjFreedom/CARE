@@ -1,0 +1,9 @@
+{
+  "name": "care-esthetics-delaware",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/validate.mjs",
+    "preview": "node scripts/preview.mjs"
+  }
+}

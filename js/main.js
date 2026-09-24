@@ -1,161 +1,117 @@
-/* ============================================================
-   CARE ESTHETICS DELAWARE — Main JavaScript
-   ============================================================ */
-
+/* Care Esthetics Delaware: navigation, gallery, and optional analytics hooks. */
 document.addEventListener('DOMContentLoaded', () => {
+  const year = document.getElementById('year');
+  if (year) year.textContent = new Date().getFullYear();
 
-  // ---- YEAR ----
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-  // ---- HEADER SCROLL ----
   const header = document.getElementById('header');
   if (header) {
-    const onScroll = () => {
-      header.classList.toggle('scrolled', window.scrollY > 20);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const updateHeader = () => header.classList.toggle('scrolled', window.scrollY > 20);
+    updateHeader();
+    window.addEventListener('scroll', updateHeader, { passive: true });
   }
 
-  // ---- MOBILE NAV TOGGLE ----
   const navToggle = document.getElementById('navToggle');
-  const mainNav   = document.getElementById('mainNav');
-
-  if (navToggle && mainNav) {
+  const nav = document.getElementById('mainNav');
+  const dropdownButtons = document.querySelectorAll('.nav__link--dropdown');
+  const closeDropdowns = () => {
+    dropdownButtons.forEach(button => {
+      button.setAttribute('aria-expanded', 'false');
+      document.getElementById(button.getAttribute('aria-controls'))?.classList.remove('open');
+    });
+  };
+  const closeNav = () => {
+    nav?.classList.remove('open');
+    navToggle?.classList.remove('open');
+    navToggle?.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    document.documentElement.style.removeProperty('--mobile-nav-top');
+    closeDropdowns();
+  };
+  if (navToggle && nav) {
     navToggle.addEventListener('click', () => {
-      const isOpen = mainNav.classList.toggle('open');
-      navToggle.classList.toggle('open', isOpen);
-      navToggle.setAttribute('aria-expanded', String(isOpen));
-      document.body.style.overflow = isOpen ? 'hidden' : '';
+      if (nav.classList.contains('open')) return closeNav();
+      nav.classList.add('open');
+      navToggle.classList.add('open');
+      navToggle.setAttribute('aria-expanded', 'true');
+      document.documentElement.style.setProperty('--mobile-nav-top', `${Math.max(header?.getBoundingClientRect().bottom || 0, 0)}px`);
+      document.body.style.overflow = 'hidden';
     });
-
-    // Close nav when clicking a non-dropdown link
-    mainNav.querySelectorAll('.nav__link:not(.nav__link--dropdown)').forEach(link => {
-      link.addEventListener('click', () => {
-        mainNav.classList.remove('open');
-        navToggle.classList.remove('open');
-        navToggle.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      });
-    });
+    nav.querySelectorAll('a[href]').forEach(link => link.addEventListener('click', closeNav));
   }
-
-  // ---- MOBILE DROPDOWN TOGGLE ----
-  document.querySelectorAll('.nav__link--dropdown').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const dropdown = btn.closest('.nav__item--dropdown')?.querySelector('.dropdown');
-      if (!dropdown) return;
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile) {
-        dropdown.classList.toggle('open');
-        btn.setAttribute('aria-expanded', String(dropdown.classList.contains('open')));
-      }
-    });
+  dropdownButtons.forEach(button => button.addEventListener('click', () => {
+    const dropdown = document.getElementById(button.getAttribute('aria-controls'));
+    if (!dropdown) return;
+    const open = button.getAttribute('aria-expanded') !== 'true';
+    closeDropdowns();
+    dropdown.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', String(open));
+  }));
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.nav__item--dropdown')) closeDropdowns();
   });
-
-  // ---- CLOSE DROPDOWN ON OUTSIDE CLICK ----
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.nav__item--dropdown')) {
-      document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    if (nav?.classList.contains('open')) { closeNav(); navToggle?.focus(); }
+    else {
+      const expanded = document.querySelector('.nav__link--dropdown[aria-expanded="true"]');
+      closeDropdowns();
+      expanded?.focus();
     }
   });
-
-  // ---- INTERSECTION OBSERVER — FADE UP ----
-  const fadeEls = document.querySelectorAll(
-    '.service-card, .testimonial-card, .about__card, .product-brand, .trust-item, .provider-card, .ba-card, .plan-card'
-  );
-
-  if ('IntersectionObserver' in window && fadeEls.length) {
-    fadeEls.forEach(el => el.classList.add('fade-up'));
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-    fadeEls.forEach(el => observer.observe(el));
-  }
-
-  // ---- SMOOTH SCROLL for anchor links ----
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', (e) => {
-      const target = document.querySelector(anchor.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        const offset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) || 72;
-        const top = target.getBoundingClientRect().top + window.scrollY - offset - 20;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }
-    });
-  });
-
-  // ---- ACTIVE NAV LINK ----
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav__link[href]').forEach(link => {
-    const href = link.getAttribute('href').split('#')[0];
-    if (href === currentPage || (currentPage === '' && href === 'index.html')) {
-      link.classList.add('active');
-    } else {
-      link.classList.remove('active');
-    }
-  });
-
-  // ---- CONTACT FORM ----
-  const contactForm = document.getElementById('contactForm');
-  if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const btn = contactForm.querySelector('[type="submit"]');
-      const origText = btn.textContent;
-
-      btn.disabled = true;
-      btn.textContent = 'Sending…';
-
-      // Simulate form submission (replace with real endpoint)
-      setTimeout(() => {
-        btn.textContent = '✓ Message Sent!';
-        btn.style.background = '#22c55e';
-        contactForm.reset();
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.textContent = origText;
-          btn.style.background = '';
-        }, 4000);
-      }, 1200);
-    });
-  }
-
-  // ---- BEFORE/AFTER FILTER ----
-  const filterBtns = document.querySelectorAll('[data-filter]');
-  const baCards    = document.querySelectorAll('[data-category]');
-
-  if (filterBtns.length && baCards.length) {
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const filter = btn.getAttribute('data-filter');
-        baCards.forEach(card => {
-          const match = filter === 'all' || card.getAttribute('data-category') === filter;
-          card.style.display = match ? '' : 'none';
-        });
-      });
-    });
-  }
-
-  // ---- RESIZE: reset mobile nav ----
   window.addEventListener('resize', () => {
-    if (window.innerWidth > 768 && mainNav?.classList.contains('open')) {
-      mainNav.classList.remove('open');
-      navToggle?.classList.remove('open');
-      document.body.style.overflow = '';
-    }
+    if (window.innerWidth > 768) closeNav();
   });
 
+  const normalizedPath = path => path.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+  const currentPath = normalizedPath(window.location.pathname);
+  document.querySelectorAll('.nav__link[href]').forEach(link => {
+    const active = normalizedPath(new URL(link.href).pathname) === currentPath;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
+  dropdownButtons.forEach(button => button.classList.toggle('active', currentPath === '/services' || currentPath.startsWith('/services/')));
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if ('IntersectionObserver' in window && !reducedMotion) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.service-card, .testimonial-card, .about__card, .product-brand, .trust-item, .provider-card, .ba-card, .plan-card').forEach(el => {
+      el.classList.add('fade-up'); observer.observe(el);
+    });
+  }
+
+  const filterButtons = document.querySelectorAll('[data-filter]');
+  const cards = document.querySelectorAll('[data-category]');
+  filterButtons.forEach(button => {
+    button.setAttribute('aria-pressed', String(button.classList.contains('active')));
+    button.addEventListener('click', () => {
+      filterButtons.forEach(other => {
+        const active = other === button;
+        other.classList.toggle('active', active); other.setAttribute('aria-pressed', String(active));
+      });
+      const filter = button.dataset.filter;
+      cards.forEach(card => { card.hidden = filter !== 'all' && card.dataset.category !== filter; });
+    });
+  });
+
+  // These hooks use an EXISTING dataLayer only. They do not load analytics,
+  // transmit form values, or classify clicks/attempts as completed leads.
+  const track = (event, location) => {
+    if (Array.isArray(window.dataLayer)) window.dataLayer.push({ event, link_location: location });
+  };
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href]');
+    if (!link) return;
+    const location = link.closest('header') ? 'header' : link.closest('footer') ? 'footer' : 'content';
+    if (link.getAttribute('href').startsWith('tel:')) track('care_phone_click', location);
+    if (link.hostname === 'asvwy.myaestheticrecord.com') track('care_booking_click', location);
+  });
+  // Native Netlify POST handles validation and delivery; no simulated success.
+  document.querySelector('form[name="contact"]')?.addEventListener('submit', () => {
+    track('care_contact_submit_attempt', 'contact_form');
+  });
 });
