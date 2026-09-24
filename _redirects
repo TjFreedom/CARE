@@ -1,1 +1,38 @@
-/home    /    301
+# Production host normalization. Preview hostnames remain accessible.
+http://www.careestheticsdelaware.com/* https://careestheticsdelaware.com/:splat 301!
+https://www.careestheticsdelaware.com/* https://careestheticsdelaware.com/:splat 301!
+http://careestheticsdelaware.com/* https://careestheticsdelaware.com/:splat 301!
+
+# Consolidate duplicate and known legacy URLs.
+/index.html / 301!
+/home / 301!
+/pages/services /services 301!
+/before-afters.html /before-afters 301!
+/contact.html /contact 301!
+/payment-plans.html /payment-plans 301!
+/providers.html /providers 301!
+/services.html /services 301!
+/thank-you.html /thank-you 301!
+/services/botox-newark-de.html /services/botox-newark-de 301!
+/services/chemical-peels-newark-de.html /services/chemical-peels-newark-de 301!
+/services/dermal-fillers-newark-de.html /services/dermal-fillers-newark-de 301!
+/services/facials-newark-de.html /services/facials-newark-de 301!
+/services/prf-microneedling-newark-de.html /services/prf-microneedling-newark-de 301!
+/services/sculptra-newark-de.html /services/sculptra-newark-de 301!
+
+# Extensionless pages. Netlify normalizes trailing slashes before rule matching.
+/before-afters /before-afters.html 200
+/contact /contact.html 200
+/payment-plans /payment-plans.html 200
+/providers /providers.html 200
+/services /services.html 200
+/thank-you /thank-you.html 200
+/services/botox-newark-de /services/botox-newark-de.html 200
+/services/chemical-peels-newark-de /services/chemical-peels-newark-de.html 200
+/services/dermal-fillers-newark-de /services/dermal-fillers-newark-de.html 200
+/services/facials-newark-de /services/facials-newark-de.html 200
+/services/prf-microneedling-newark-de /services/prf-microneedling-newark-de.html 200
+/services/sculptra-newark-de /services/sculptra-newark-de.html 200
+
+# Missing URLs must remain missing, with helpful navigation.
+/* /404.html 404
