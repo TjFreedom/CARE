@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b2d4d" />
+  <title>Freedom Caught Ya! — Prototype</title>
+  <style>
+:root {
+  --navy: #0b2d4d;
+  --navy-2: #123f68;
+  --blue: #1769aa;
+  --sky: #eaf4fb;
+  --teal: #0f8b8d;
+  --green: #2b8a66;
+  --lime: #e9f5d7;
+  --gold: #f4b942;
+  --orange: #f18f3b;
+  --red: #c84b56;
+  --ink: #17212b;
+  --muted: #64748b;
+  --line: #dde5ec;
+  --surface: #ffffff;
+  --bg: #f5f8fb;
+  --shadow: 0 16px 38px rgba(11,45,77,.09);
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+html { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+body { margin: 0; min-height: 100vh; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+
+.app-shell { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+.sidebar { position: sticky; top: 0; height: 100vh; padding: 24px 18px; background: linear-gradient(180deg, #0b2d4d 0%, #08243d 100%); color: white; display: flex; flex-direction: column; z-index: 10; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 2px 6px 26px; }
+.brand-mark { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-weight: 900; font-size: 24px; color: var(--navy); background: linear-gradient(135deg, #fff 0%, #dceefe 100%); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.brand-name { font-weight: 800; font-size: 18px; line-height: 1.05; }
+.brand-subtitle { font-size: 13px; color: #9ed7db; font-weight: 700; margin-top: 3px; }
+.nav { display: grid; gap: 7px; }
+.nav-item { border: 0; width: 100%; display: flex; align-items: center; gap: 12px; color: #bfd0df; background: transparent; padding: 12px 13px; border-radius: 12px; text-align: left; transition: .18s ease; }
+.nav-item:hover { background: rgba(255,255,255,.07); color: white; }
+.nav-item.active { color: white; background: rgba(255,255,255,.12); box-shadow: inset 3px 0 0 #68c4c5; }
+.nav-icon { width: 22px; text-align: center; font-size: 18px; }
+.sidebar-bottom { margin-top: auto; display: grid; gap: 16px; }
+.freedom-way-card { padding: 16px; border: 1px solid rgba(255,255,255,.13); border-radius: 15px; background: rgba(255,255,255,.06); }
+.freedom-way-card .eyebrow { color: #7ad0d1; font-size: 10px; letter-spacing: .12em; font-weight: 900; }
+.freedom-way-card strong { display: block; margin-top: 7px; font-size: 14px; line-height: 1.3; }
+.freedom-way-card p { margin: 7px 0 0; color: #b9c9d7; font-size: 12px; line-height: 1.45; }
+.text-button { background: none; border: 0; color: #98aec1; text-align: left; padding: 0 8px; font-size: 12px; }
+.text-button:hover { color: white; }
+
+.main { min-width: 0; }
+.topbar { height: 82px; padding: 0 32px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.93); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; gap: 20px; position: sticky; top: 0; z-index: 8; }
+.topbar-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+.topbar-subtitle { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.demo-pill { font-size: 10px; letter-spacing: .1em; font-weight: 900; padding: 5px 9px; background: #fff4d5; color: #806115; border-radius: 999px; border: 1px solid #f6dda0; }
+.role-switcher { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+.role-switcher select { border: 1px solid var(--line); border-radius: 9px; padding: 7px 30px 7px 9px; background: white; color: var(--ink); }
+.avatar { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--navy); color: white; font-size: 12px; font-weight: 900; }
+.mobile-menu { display: none; border: 0; background: none; font-size: 24px; }
+
+.content { padding: 28px 32px 48px; max-width: 1440px; margin: 0 auto; }
+.hero { border-radius: 22px; padding: 28px; background: linear-gradient(125deg, var(--navy) 0%, #155a83 68%, #15888c 100%); color: white; box-shadow: var(--shadow); display: grid; grid-template-columns: 1fr auto; gap: 24px; overflow: hidden; position: relative; }
+.hero:after { content: ""; width: 240px; height: 240px; position: absolute; right: -70px; top: -110px; border-radius: 50%; border: 48px solid rgba(255,255,255,.08); }
+.hero h1 { margin: 0; font-size: clamp(26px, 3vw, 38px); line-height: 1.05; letter-spacing: -.03em; }
+.hero p { max-width: 650px; color: #d9edf7; margin: 10px 0 0; font-size: 14px; line-height: 1.55; }
+.hero-actions { align-self: center; position: relative; z-index: 1; }
+
+.primary-button, .secondary-button, .ghost-button { border-radius: 11px; padding: 11px 15px; font-weight: 800; border: 1px solid transparent; transition: .16s ease; }
+.primary-button { background: var(--gold); color: #24313a; box-shadow: 0 6px 18px rgba(244,185,66,.26); }
+.primary-button:hover { transform: translateY(-1px); filter: brightness(1.03); }
+.primary-button:disabled { cursor: not-allowed; opacity: .45; transform: none; }
+.secondary-button { background: white; color: var(--navy); border-color: var(--line); }
+.secondary-button:hover { border-color: #b9c9d7; }
+.ghost-button { background: transparent; color: var(--navy); border-color: var(--line); }
+.full { width: 100%; }
+
+.grid { display: grid; gap: 20px; }
+.stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 20px; }
+.stat-card { background: white; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: 0 7px 23px rgba(20,55,80,.04); }
+.stat-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.stat-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.stat-value { margin-top: 8px; font-size: 28px; font-weight: 900; color: var(--navy); letter-spacing: -.03em; }
+.stat-note { margin-top: 6px; font-size: 11px; color: var(--muted); }
+.stat-icon { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--sky); }
+.progress { height: 7px; background: #e9eef3; border-radius: 999px; overflow: hidden; margin-top: 11px; }
+.progress > span { height: 100%; display: block; border-radius: inherit; background: linear-gradient(90deg, var(--teal), #5cb9a6); }
+
+.two-column { grid-template-columns: minmax(0, 1.35fr) minmax(310px, .65fr); margin-top: 20px; }
+.card { background: white; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 7px 23px rgba(20,55,80,.04); }
+.card-header { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #edf1f5; }
+.card-header h2 { font-size: 15px; margin: 0; color: var(--navy); }
+.card-header p { margin: 3px 0 0; font-size: 11px; color: var(--muted); }
+.card-body { padding: 20px; }
+.link-button { border: 0; background: none; color: var(--blue); font-weight: 800; font-size: 12px; padding: 4px; }
+
+.recognition-feed { display: grid; gap: 0; }
+.recognition-item { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; padding: 15px 0; border-bottom: 1px solid #edf1f5; }
+.recognition-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.person-avatar { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; color: white; font-weight: 900; font-size: 12px; background: linear-gradient(135deg, var(--blue), var(--teal)); }
+.recognition-meta { font-size: 12px; color: var(--muted); line-height: 1.45; }
+.recognition-meta strong { color: var(--ink); }
+.recognition-message { margin-top: 4px; color: #394a59; font-size: 13px; line-height: 1.45; }
+.value-chip, .point-chip, .location-chip, .status-chip { display: inline-flex; align-items: center; border-radius: 999px; font-weight: 800; white-space: nowrap; }
+.value-chip { margin-top: 7px; font-size: 10px; padding: 4px 8px; background: var(--sky); color: var(--blue); }
+.point-badge { min-width: 54px; text-align: center; font-size: 13px; font-weight: 900; color: var(--teal); }
+.point-badge span { display: block; font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+.leader-list { display: grid; gap: 11px; }
+.leader-row { display: grid; grid-template-columns: 28px 36px 1fr auto; gap: 10px; align-items: center; padding: 8px 0; }
+.rank { font-weight: 900; color: #8998a5; font-size: 12px; text-align: center; }
+.rank.top { color: var(--gold); font-size: 16px; }
+.leader-row .person-avatar { width: 36px; height: 36px; border-radius: 10px; font-size: 10px; }
+.leader-name { font-size: 12px; font-weight: 800; }
+.leader-location { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.leader-score { color: var(--navy); font-size: 13px; font-weight: 900; }
+
+.section-heading { display: flex; justify-content: space-between; gap: 18px; align-items: end; margin-bottom: 18px; }
+.section-heading h1 { margin: 0; color: var(--navy); font-size: 28px; letter-spacing: -.025em; }
+.section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+
+.form-card { max-width: 840px; margin: 0 auto; }
+.form-step { padding: 24px; border-bottom: 1px solid #edf1f5; }
+.form-step:last-child { border-bottom: 0; }
+.step-label { font-size: 11px; font-weight: 900; color: var(--teal); letter-spacing: .08em; text-transform: uppercase; }
+.form-step h3 { margin: 5px 0 14px; color: var(--navy); font-size: 17px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+label.field { display: grid; gap: 7px; color: #455767; font-size: 11px; font-weight: 800; }
+.field select, .field input, .field textarea { width: 100%; border: 1px solid #ced9e3; border-radius: 10px; padding: 11px 12px; outline: 0; background: white; color: var(--ink); }
+.field textarea { min-height: 100px; resize: vertical; }
+.field select:focus, .field input:focus, .field textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(15,139,141,.09); }
+.point-options { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.point-option { border: 1px solid var(--line); border-radius: 12px; background: white; padding: 13px 10px; text-align: center; color: var(--navy); font-weight: 900; }
+.point-option small { display: block; color: var(--muted); font-size: 9px; font-weight: 600; margin-top: 2px; }
+.point-option.selected { border-color: var(--teal); background: #edfafa; box-shadow: inset 0 0 0 1px var(--teal); }
+.checkbox-row { display: flex; align-items: center; gap: 9px; color: #455767; font-size: 12px; margin-top: 12px; }
+.budget-strip { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 12px 14px; border-radius: 11px; background: #f0f7fb; color: var(--navy); font-size: 12px; margin-bottom: 15px; }
+.budget-strip strong { font-size: 15px; }
+
+.leaderboard-table { width: 100%; border-collapse: collapse; }
+.leaderboard-table th { text-align: left; padding: 12px 14px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; border-bottom: 1px solid var(--line); }
+.leaderboard-table td { padding: 14px; border-bottom: 1px solid #edf1f5; font-size: 12px; }
+.leaderboard-table tr:last-child td { border-bottom: 0; }
+.member-cell { display: flex; align-items: center; gap: 10px; }
+.table-avatar { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: white; font-weight: 900; font-size: 10px; background: linear-gradient(135deg, var(--navy-2), var(--teal)); }
+.location-chip { padding: 4px 8px; font-size: 9px; background: #f1f4f7; color: #5f6f7d; }
+
+.reward-toolbar { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin-bottom: 18px; }
+.points-wallet { border-radius: 13px; padding: 10px 14px; background: var(--navy); color: white; font-size: 11px; }
+.points-wallet strong { font-size: 16px; margin-left: 5px; color: #ffe196; }
+.rewards-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.reward-card { overflow: hidden; }
+.reward-visual { height: 118px; background: linear-gradient(135deg, #dfeef7, #e6f7ee); display: grid; place-items: center; font-size: 42px; position: relative; }
+.reward-cost { position: absolute; right: 12px; top: 12px; padding: 6px 9px; background: white; border-radius: 999px; color: var(--navy); font-size: 11px; font-weight: 900; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+.reward-body { padding: 16px; }
+.reward-body h3 { margin: 0; color: var(--navy); font-size: 15px; }
+.reward-body p { margin: 7px 0 13px; color: var(--muted); font-size: 11px; line-height: 1.45; min-height: 32px; }
+.reward-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; margin-bottom: 12px; }
+
+.admin-tabs { display: flex; gap: 7px; margin-bottom: 16px; flex-wrap: wrap; }
+.admin-tab { border: 1px solid var(--line); background: white; border-radius: 999px; padding: 8px 12px; font-size: 11px; font-weight: 800; color: var(--muted); }
+.admin-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
+.admin-grid { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+.settings-list { display: grid; gap: 14px; }
+.setting-row { display: grid; grid-template-columns: 1fr 130px; align-items: center; gap: 15px; padding-bottom: 14px; border-bottom: 1px solid #edf1f5; }
+.setting-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.setting-title { font-size: 12px; font-weight: 800; color: var(--ink); }
+.setting-desc { margin-top: 3px; font-size: 10px; color: var(--muted); line-height: 1.4; }
+.setting-control input, .setting-control select { width: 100%; border: 1px solid var(--line); border-radius: 9px; padding: 9px; }
+.audit-list { display: grid; gap: 9px; }
+.audit-row { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 10px; padding: 10px; background: #f8fafc; border-radius: 10px; }
+.audit-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--sky); display: grid; place-items: center; }
+.audit-text { font-size: 11px; line-height: 1.4; }
+.audit-text strong { color: var(--navy); }
+.audit-time { font-size: 9px; color: var(--muted); }
+
+.value-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; }
+.value-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: white; text-align: center; }
+.value-card .value-symbol { width: 34px; height: 34px; border-radius: 10px; margin: 0 auto 8px; display: grid; place-items: center; background: var(--sky); }
+.value-card strong { display: block; font-size: 11px; color: var(--navy); }
+.value-card span { display: block; margin-top: 4px; font-size: 9px; line-height: 1.35; color: var(--muted); }
+
+.empty-state { padding: 38px; text-align: center; color: var(--muted); }
+.hidden { display: none !important; }
+.toast { position: fixed; right: 24px; bottom: 24px; background: #102f49; color: white; border-radius: 12px; padding: 12px 15px; font-size: 12px; font-weight: 700; box-shadow: 0 16px 38px rgba(0,0,0,.2); opacity: 0; transform: translateY(10px); pointer-events: none; transition: .2s ease; z-index: 40; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.modal-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(6,27,45,.57); display: grid; place-items: center; padding: 20px; }
+.modal { width: min(520px, 100%); background: white; border-radius: 20px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,.26); position: relative; }
+.small-modal { max-width: 410px; text-align: center; }
+.modal-close { position: absolute; right: 14px; top: 12px; border: 0; background: none; font-size: 24px; color: var(--muted); }
+.success-burst { width: 58px; height: 58px; margin: 3px auto 14px; border-radius: 50%; display: grid; place-items: center; background: #e5f6ed; color: var(--green); font-size: 28px; font-weight: 900; }
+.modal h2 { color: var(--navy); margin: 0; }
+.modal p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+.employee-hero { display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; }
+.employee-hero .person-avatar { width: 72px; height: 72px; border-radius: 20px; font-size: 20px; }
+.employee-points { text-align: right; }
+.employee-points strong { font-size: 32px; display: block; }
+.employee-points span { font-size: 10px; color: #cce0ec; text-transform: uppercase; letter-spacing: .08em; }
+
+@media (max-width: 1080px) {
+  .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .rewards-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .value-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+@media (max-width: 820px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; left: -270px; width: 248px; transition: left .2s ease; box-shadow: 18px 0 50px rgba(0,0,0,.18); }
+  .sidebar.open { left: 0; }
+  .mobile-menu { display: block; }
+  .topbar { padding: 0 16px; }
+  .topbar-subtitle, .demo-pill, .role-switcher span { display: none; }
+  .content { padding: 20px 16px 40px; }
+  .two-column, .admin-grid { grid-template-columns: 1fr; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-actions { justify-self: start; }
+  .form-grid { grid-template-columns: 1fr; }
+  .point-options { grid-template-columns: repeat(2,1fr); }
+  .leaderboard-table th:nth-child(4), .leaderboard-table td:nth-child(4) { display: none; }
+}
+
+@media (max-width: 560px) {
+  .topbar-title { font-size: 16px; }
+  .role-switcher select { width: 110px; }
+  .avatar { display: none; }
+  .stats-grid, .rewards-grid { grid-template-columns: 1fr; }
+  .value-grid { grid-template-columns: 1fr 1fr; }
+  .section-heading { align-items: flex-start; flex-direction: column; }
+  .employee-hero { grid-template-columns: auto 1fr; }
+  .employee-points { grid-column: 1/-1; text-align: left; }
+}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">F</div>
+        <div>
+          <div class="brand-name">Freedom</div>
+          <div class="brand-subtitle">Caught Ya!</div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <button class="nav-item active" data-view="dashboard">
+          <span class="nav-icon">⌂</span><span>Home</span>
+        </button>
+        <button class="nav-item" data-view="recognize">
+          <span class="nav-icon">✦</span><span>Give Points</span>
+        </button>
+        <button class="nav-item" data-view="leaderboard">
+          <span class="nav-icon">★</span><span>Leaderboard</span>
+        </button>
+        <button class="nav-item" data-view="rewards">
+          <span class="nav-icon">🎁</span><span>Rewards</span>
+        </button>
+        <button class="nav-item" data-view="admin">
+          <span class="nav-icon">⚙</span><span>Admin</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="freedom-way-card">
+          <div class="eyebrow">THE FREEDOM WAY</div>
+          <strong>Catch great work in the moment.</strong>
+          <p>Recognize the behaviors that build the culture we want.</p>
+        </div>
+        <button class="text-button" id="resetDemoBtn">Reset demo data</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenuBtn" aria-label="Open navigation">☰</button>
+        <div>
+          <div class="topbar-title" id="pageTitle">Good morning, TJ</div>
+          <div class="topbar-subtitle" id="pageSubtitle">Make someone’s day by catching them doing something great.</div>
+        </div>
+        <div class="topbar-actions">
+          <span class="demo-pill">PROTOTYPE</span>
+          <label class="role-switcher">
+            <span>View as</span>
+            <select id="roleSelect" aria-label="View as user">
+              <option value="leader">TJ — Leader</option>
+              <option value="employee">Alex — Team Member</option>
+            </select>
+          </label>
+          <div class="avatar" id="profileAvatar">TJ</div>
+        </div>
+      </header>
+
+      <section id="appView" class="content" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <div class="modal-backdrop hidden" id="confirmModal">
+    <div class="modal small-modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <button class="modal-close" data-close-modal="confirmModal">×</button>
+      <div class="success-burst">✓</div>
+      <h2 id="confirmTitle">Caught Ya sent!</h2>
+      <p id="confirmMessage"></p>
+      <button class="primary-button full" data-close-modal="confirmModal">Done</button>
+    </div>
+  </div>
+
+  <script>
+const CORE_VALUES = [
+  { name: 'Patient-Centered', symbol: '♥', description: 'Puts patient needs and preferences first.' },
+  { name: 'Excellence', symbol: '★', description: 'Raises the standard in work and service.' },
+  { name: 'Empowerment', symbol: '↗', description: 'Takes ownership and helps others grow.' },
+  { name: 'Collaboration', symbol: '∞', description: 'Works across roles and teams to win together.' },
+  { name: 'Integrity', symbol: '✓', description: 'Does the right thing, even when no one is watching.' }
+];
+
+const LOCATIONS = [
+  'Freedom HQ', 'Bear-Glasgow Dental', 'Pike Creek Dental', 'Creekside Dental',
+  'Westown Dental', 'West Dover Dental', 'Peninsula Dental', 'Emerald Dental',
+  'Smile Team Northeast', 'Smile Team South Philly', 'DCAD', 'Stellar Orthodontics'
+];
+
+const DEFAULT_DATA = {
+  program: {
+    name: 'Freedom Caught Ya!',
+    monthlyLeaderBank: 250,
+    companyFeed: true,
+    allowPhysicalToken: true,
+    approvalThreshold: 50
+  },
+  currentLeader: { id: 'tj', name: 'TJ Hammer', initials: 'TJ', location: 'Freedom HQ', bankRemaining: 175, bankTotal: 250 },
+  currentEmployee: { id: 'alex', name: 'Alex Rivera', initials: 'AR', location: 'Pike Creek Dental', role: 'Dental Assistant' },
+  employees: [
+    { id: 'alex', name: 'Alex Rivera', initials: 'AR', location: 'Pike Creek Dental', role: 'Dental Assistant', points: 285, recognitions: 12 },
+    { id: 'jordan', name: 'Jordan Mitchell', initials: 'JM', location: 'Bear-Glasgow Dental', role: 'Treatment Coordinator', points: 360, recognitions: 15 },
+    { id: 'maya', name: 'Maya Patel', initials: 'MP', location: 'Westown Dental', role: 'Hygienist', points: 315, recognitions: 13 },
+    { id: 'chris', name: 'Chris Bennett', initials: 'CB', location: 'Creekside Dental', role: 'Dental Assistant', points: 260, recognitions: 11 },
+    { id: 'sophia', name: 'Sophia Lewis', initials: 'SL', location: 'Smile Team Northeast', role: 'Patient Care Coordinator', points: 405, recognitions: 17 },
+    { id: 'marcus', name: 'Marcus Green', initials: 'MG', location: 'West Dover Dental', role: 'Office Team', points: 225, recognitions: 9 },
+    { id: 'emily', name: 'Emily Foster', initials: 'EF', location: 'Peninsula Dental', role: 'Hygienist', points: 340, recognitions: 14 },
+    { id: 'taylor', name: 'Taylor Brooks', initials: 'TB', location: 'Emerald Dental', role: 'Front Desk', points: 190, recognitions: 8 }
+  ],
+  leaders: [
+    { id: 'lisa', name: 'Lisa Romero', initials: 'LR', location: 'Executive Team', given: 220, bank: 250 },
+    { id: 'tj', name: 'TJ Hammer', initials: 'TJ', location: 'Operations / IT', given: 75, bank: 250 },
+    { id: 'joyce', name: 'Joyce H.', initials: 'JH', location: 'Operations', given: 195, bank: 250 },
+    { id: 'elaine', name: 'Elaine M.', initials: 'EM', location: 'Operations', given: 165, bank: 250 },
+    { id: 'penny', name: 'Penny C.', initials: 'PC', location: 'Community', given: 140, bank: 250 }
+  ],
+  recognitions: [
+    { id: 1, from: 'Lisa Romero', to: 'Sophia Lewis', employeeId: 'sophia', points: 25, value: 'Patient-Centered', message: 'Stayed late to make sure a nervous patient understood every next step and left feeling cared for.', location: 'Smile Team Northeast', physical: true, date: 'Today · 8:42 AM' },
+    { id: 2, from: 'Joyce H.', to: 'Maya Patel', employeeId: 'maya', points: 10, value: 'Collaboration', message: 'Jumped in to support another column without being asked and kept the day moving.', location: 'Westown Dental', physical: false, date: 'Yesterday · 3:18 PM' },
+    { id: 3, from: 'TJ Hammer', to: 'Emily Foster', employeeId: 'emily', points: 25, value: 'Excellence', message: 'Caught a recurring workflow issue and proposed a simple fix that saves the team time every day.', location: 'Peninsula Dental', physical: true, date: 'Yesterday · 11:06 AM' },
+    { id: 4, from: 'Lisa Romero', to: 'Jordan Mitchell', employeeId: 'jordan', points: 10, value: 'Integrity', message: 'Flagged a process gap before it became a patient or compliance issue.', location: 'Bear-Glasgow Dental', physical: false, date: 'Sep 25 · 4:07 PM' },
+    { id: 5, from: 'Elaine M.', to: 'Alex Rivera', employeeId: 'alex', points: 10, value: 'Empowerment', message: 'Took ownership of training a new teammate and made sure they felt confident before working independently.', location: 'Pike Creek Dental', physical: false, date: 'Sep 25 · 10:22 AM' }
+  ],
+  rewards: [
+    { id: 'hoodie', name: 'Freedom Premium Hoodie', icon: '🧥', points: 150, stock: 18, description: 'Premium Freedom-branded hoodie or quarter-zip from the employee shop.' },
+    { id: 'tumbler', name: 'Freedom Tumbler', icon: '🥤', points: 90, stock: 34, description: 'Insulated Freedom tumbler with your choice of available style.' },
+    { id: 'lunch', name: 'Team Lunch Credit', icon: '🍕', points: 110, stock: 50, description: 'A $25 lunch credit to use with your team or a coworker.' },
+    { id: 'gift', name: '$25 Experience Card', icon: '🎟️', points: 125, stock: 25, description: 'A flexible $25 reward for dining, entertainment, or a local experience.' },
+    { id: 'swag', name: 'Freedom Swag Pack', icon: '🎒', points: 75, stock: 40, description: 'A rotating bundle of Freedom gear and desk accessories.' },
+    { id: 'vip', name: 'VIP Recognition Reward', icon: '🏆', points: 250, stock: 10, description: 'Premium recognition item reserved for sustained impact and leadership.' }
+  ],
+  redemptions: [
+    { id: 1, employee: 'Sophia Lewis', reward: 'Freedom Premium Hoodie', points: 150, status: 'Ready to fulfill', date: 'Sep 26' },
+    { id: 2, employee: 'Maya Patel', reward: 'Freedom Tumbler', points: 90, status: 'Ordered', date: 'Sep 24' }
+  ],
+  audit: [
+    { icon: '✦', text: '<strong>Lisa Romero</strong> awarded 25 points to Sophia Lewis', time: 'Today · 8:42 AM' },
+    { icon: '🎁', text: '<strong>Sophia Lewis</strong> redeemed a Freedom Premium Hoodie', time: 'Yesterday' },
+    { icon: '⚙', text: '<strong>Admin</strong> set monthly leader bank to 250 points', time: 'Sep 24' }
+  ]
+};
+
+const STORAGE_KEY = 'freedom-caught-ya-prototype-v2';
+let state = loadState();
+let currentView = 'dashboard';
+let currentRole = 'leader';
+let selectedPoints = 10;
+
+function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || clone(DEFAULT_DATA); }
+  catch { return clone(DEFAULT_DATA); }
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function escapeHtml(str='') { return String(str).replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s])); }
+function initials(name) { return name.split(' ').map(x => x[0]).slice(0,2).join('').toUpperCase(); }
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message; el.classList.add('show');
+  clearTimeout(showToast.t); showToast.t = setTimeout(() => el.classList.remove('show'), 2400);
+}
+function openModal(message) {
+  document.getElementById('confirmMessage').textContent = message;
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function moneyless(n) { return Number(n).toLocaleString(); }
+
+function setHeader(title, subtitle) {
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('pageSubtitle').textContent = subtitle;
+}
+
+function render() {
+  if (currentRole === 'employee' && currentView === 'admin') currentView = 'dashboard';
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
+  const app = document.getElementById('appView');
+  switch (currentView) {
+    case 'recognize': app.innerHTML = renderRecognize(); setHeader('Give Caught Ya Points', 'Recognize a specific behavior and tie it to the Freedom Way.'); break;
+    case 'leaderboard': app.innerHTML = renderLeaderboard(); setHeader('Leaderboard', 'Celebrate consistent positive impact across the organization.'); break;
+    case 'rewards': app.innerHTML = renderRewards(); setHeader('Rewards Shop', 'Turn recognition into something employees actually value.'); break;
+    case 'admin': app.innerHTML = renderAdmin(); setHeader('Program Administration', 'Control budgets, rules, fulfillment, and audit history.'); break;
+    default: app.innerHTML = currentRole === 'leader' ? renderLeaderDashboard() : renderEmployeeDashboard();
+  }
+  bindViewEvents();
+}
+
+function renderLeaderDashboard() {
+  setHeader('Good morning, TJ', 'Make someone’s day by catching them doing something great.');
+  const totalPoints = state.recognitions.reduce((s,r)=>s+r.points,0);
+  const top = [...state.employees].sort((a,b)=>b.points-a.points).slice(0,5);
+  const participation = Math.round((state.leaders.filter(l=>l.given>0).length/state.leaders.length)*100);
+  const used = state.currentLeader.bankTotal - state.currentLeader.bankRemaining;
+  return `
+    <div class="hero">
+      <div>
+        <div class="eyebrow">RECOGNITION THAT REINFORCES THE FREEDOM WAY</div>
+        <h1>Who did you catch doing something great?</h1>
+        <p>A fast, visible way for leaders to reinforce the behaviors that make Freedom stronger—then give employees points they can actually use.</p>
+      </div>
+      <div class="hero-actions"><button class="primary-button" data-go="recognize">+ Give Caught Ya Points</button></div>
+    </div>
+
+    <div class="grid stats-grid">
+      ${statCard('Your point bank', `${state.currentLeader.bankRemaining}`, `${used} of ${state.currentLeader.bankTotal} used this month`, '◎', Math.round(used/state.currentLeader.bankTotal*100))}
+      ${statCard('Points recognized', moneyless(totalPoints), `${state.recognitions.length} recognition moments in demo`, '✦')}
+      ${statCard('Leader participation', `${participation}%`, 'Leaders participating this month', '↗')}
+      ${statCard('Rewards redeemed', `${state.redemptions.length}`, 'Fulfillment queue ready for admin', '🎁')}
+    </div>
+
+    <div class="grid two-column">
+      <div class="card">
+        <div class="card-header"><div><h2>Recent Caught Ya moments</h2><p>Public recognition feed across the organization</p></div><button class="link-button" data-go="recognize">Recognize someone</button></div>
+        <div class="card-body recognition-feed">${state.recognitions.slice(0,5).map(recognitionItem).join('')}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><h2>Top team members</h2><p>Current point balance</p></div><button class="link-button" data-go="leaderboard">Full board</button></div>
+        <div class="card-body leader-list">${top.map((p,i)=>leaderRow(p,i)).join('')}</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-header"><div><h2>What are we reinforcing?</h2><p>Recognition maps directly to Freedom's published core values</p></div></div>
+      <div class="card-body"><div class="value-grid">${CORE_VALUES.map(valueCard).join('')}</div></div>
+    </div>`;
+}
+
+function renderEmployeeDashboard() {
+  const emp = state.employees.find(e=>e.id===state.currentEmployee.id) || state.employees[0];
+  const mine = state.recognitions.filter(r=>r.employeeId===emp.id);
+  const nextReward = [...state.rewards].filter(r=>r.points>emp.points).sort((a,b)=>a.points-b.points)[0];
+  setHeader(`Hi, ${emp.name.split(' ')[0]}`, 'See the impact others have noticed and choose what you want to work toward.');
+  return `
+    <div class="hero employee-hero">
+      <div class="person-avatar">${emp.initials}</div>
+      <div><div class="eyebrow">YOUR CAUGHT YA WALLET</div><h1>${escapeHtml(emp.name)}</h1><p>${escapeHtml(emp.role)} · ${escapeHtml(emp.location)}</p></div>
+      <div class="employee-points"><strong>${emp.points}</strong><span>points available</span></div>
+    </div>
+    <div class="grid stats-grid">
+      ${statCard('Recognition moments', emp.recognitions, 'All-time demo count', '✦')}
+      ${statCard('This month', mine.reduce((s,r)=>s+r.points,0), `${mine.length} Caught Ya moments`, '◎')}
+      ${statCard('Next reward', nextReward ? `${nextReward.points - emp.points}` : '0', nextReward ? `points until ${nextReward.name}` : 'You can reach every reward', '🎁')}
+      ${statCard('Culture streak', '3 wks', 'Recognized in 3 consecutive weeks', '🔥')}
+    </div>
+    <div class="grid two-column">
+      <div class="card">
+        <div class="card-header"><div><h2>Your recognition</h2><p>What teammates and leaders caught you doing</p></div></div>
+        <div class="card-body recognition-feed">${mine.length ? mine.map(recognitionItem).join('') : '<div class="empty-state">No recognition yet in this demo.</div>'}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><h2>Spend your points</h2><p>Rewards you can unlock now</p></div><button class="link-button" data-go="rewards">Open shop</button></div>
+        <div class="card-body">${state.rewards.filter(r=>r.points<=emp.points).slice(0,3).map(r=>`<div class="leader-row"><div class="rank">${r.icon}</div><div></div><div><div class="leader-name">${escapeHtml(r.name)}</div><div class="leader-location">${r.points} points</div></div><div class="leader-score">Eligible</div></div>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function statCard(label, value, note, icon, progress=null) {
+  return `<div class="stat-card"><div class="stat-top"><div><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-note">${note}</div></div><div class="stat-icon">${icon}</div></div>${progress!==null?`<div class="progress"><span style="width:${Math.min(100,progress)}%"></span></div>`:''}</div>`;
+}
+function recognitionItem(r) {
+  return `<div class="recognition-item"><div class="person-avatar">${initials(r.to)}</div><div><div class="recognition-meta"><strong>${escapeHtml(r.from)}</strong> caught <strong>${escapeHtml(r.to)}</strong> doing something great · ${escapeHtml(r.date)}</div><div class="recognition-message">“${escapeHtml(r.message)}”</div><span class="value-chip">${escapeHtml(r.value)}${r.physical?' · physical token':''}</span></div><div class="point-badge">+${r.points}<span>POINTS</span></div></div>`;
+}
+function leaderRow(p,i) {
+  return `<div class="leader-row"><div class="rank ${i===0?'top':''}">${i===0?'★':i+1}</div><div class="person-avatar">${p.initials}</div><div><div class="leader-name">${escapeHtml(p.name)}</div><div class="leader-location">${escapeHtml(p.location)}</div></div><div class="leader-score">${p.points}</div></div>`;
+}
+function valueCard(v) { return `<div class="value-card"><div class="value-symbol">${v.symbol}</div><strong>${v.name}</strong><span>${v.description}</span></div>`; }
+
+function renderRecognize() {
+  if (currentRole === 'employee') return `<div class="card"><div class="empty-state"><h3>Leader access only</h3><p>Switch to the leader demo to award Caught Ya points.</p></div></div>`;
+  return `<div class="section-heading"><div><h1>Give Caught Ya Points</h1><p>Recognition should be specific, timely, and connected to the behavior you want repeated.</p></div></div>
+    <div class="card form-card">
+      <form id="recognitionForm">
+        <div class="form-step">
+          <div class="budget-strip"><span>Your monthly leader bank</span><strong>${state.currentLeader.bankRemaining} / ${state.currentLeader.bankTotal} points remaining</strong></div>
+          <div class="step-label">Step 1</div><h3>Who did you catch?</h3>
+          <div class="form-grid">
+            <label class="field">Team member<select id="awardEmployee" required><option value="">Choose a team member…</option>${state.employees.map(e=>`<option value="${e.id}">${escapeHtml(e.name)} — ${escapeHtml(e.location)}</option>`).join('')}</select></label>
+            <label class="field">Location<select id="awardLocation"><option value="">Use employee location</option>${LOCATIONS.map(l=>`<option>${escapeHtml(l)}</option>`).join('')}</select></label>
+          </div>
+        </div>
+        <div class="form-step">
+          <div class="step-label">Step 2</div><h3>How big was the impact?</h3>
+          <div class="point-options">
+            ${[[5,'Quick win'],[10,'Great catch'],[25,'Big impact'],[50,'Exceptional']].map(([n,t])=>`<button type="button" class="point-option ${n===selectedPoints?'selected':''}" data-points="${n}">${n} points<small>${t}</small></button>`).join('')}
+          </div>
+        </div>
+        <div class="form-step">
+          <div class="step-label">Step 3</div><h3>Connect it to the Freedom Way</h3>
+          <div class="form-grid">
+            <label class="field">Core value<select id="awardValue" required><option value="">Choose a value…</option>${CORE_VALUES.map(v=>`<option>${v.name}</option>`).join('')}</select></label>
+            <label class="field">Recognition type<select id="awardVisibility"><option>Share to company feed</option><option>Private recognition</option></select></label>
+          </div>
+          <label class="field" style="margin-top:14px">What did they do?<textarea id="awardMessage" maxlength="240" required placeholder="Be specific: what did you see, why did it matter, and what should we repeat?"></textarea></label>
+          <label class="checkbox-row"><input type="checkbox" id="physicalToken" /> I also handed them a physical Freedom Caught Ya coin/token</label>
+        </div>
+        <div class="form-step" style="display:flex;justify-content:flex-end;gap:10px"><button type="button" class="secondary-button" data-go="dashboard">Cancel</button><button type="submit" class="primary-button">Send recognition +${selectedPoints}</button></div>
+      </form>
+    </div>`;
+}
+
+function renderLeaderboard() {
+  const rows = [...state.employees].sort((a,b)=>b.points-a.points);
+  return `<div class="section-heading"><div><h1>Culture Leaderboard</h1><p>Celebrate the people who are consistently demonstrating the Freedom Way.</p></div><div class="points-wallet">Recognition this month <strong>${state.recognitions.reduce((s,r)=>s+r.points,0)} pts</strong></div></div>
+  <div class="card"><div class="card-header"><div><h2>Team member leaderboard</h2><p>Prototype ranks by current redeemable point balance</p></div></div><div class="card-body" style="padding:0"><div style="overflow:auto"><table class="leaderboard-table"><thead><tr><th>Rank</th><th>Team member</th><th>Location</th><th>Role</th><th>Recognitions</th><th>Points</th></tr></thead><tbody>${rows.map((e,i)=>`<tr><td><strong>${i===0?'★ #1':'#'+(i+1)}</strong></td><td><div class="member-cell"><div class="table-avatar">${e.initials}</div><strong>${escapeHtml(e.name)}</strong></div></td><td><span class="location-chip">${escapeHtml(e.location)}</span></td><td>${escapeHtml(e.role)}</td><td>${e.recognitions}</td><td><strong>${e.points}</strong></td></tr>`).join('')}</tbody></table></div></div></div>
+  <div class="card" style="margin-top:20px"><div class="card-header"><div><h2>Leader participation</h2><p>Make recognition a leadership behavior, not just an HR program</p></div></div><div class="card-body"><div class="leader-list">${[...state.leaders].sort((a,b)=>b.given-a.given).map((l,i)=>`<div class="leader-row"><div class="rank ${i===0?'top':''}">${i===0?'★':i+1}</div><div class="person-avatar">${l.initials}</div><div><div class="leader-name">${escapeHtml(l.name)}</div><div class="leader-location">${escapeHtml(l.location)}</div><div class="progress"><span style="width:${Math.min(100,l.given/l.bank*100)}%"></span></div></div><div class="leader-score">${l.given}/${l.bank}</div></div>`).join('')}</div></div></div>`;
+}
+
+function renderRewards() {
+  const emp = state.employees.find(e=>e.id===state.currentEmployee.id) || state.employees[0];
+  const wallet = currentRole === 'employee' ? emp.points : 285;
+  return `<div class="reward-toolbar"><div><h1 style="margin:0;color:var(--navy);font-size:28px">Rewards Shop</h1><p style="margin:5px 0 0;color:var(--muted);font-size:13px">A curated catalog that can be sourced centrally and changed anytime.</p></div><div class="points-wallet">${currentRole==='employee'?'Your':'Demo'} wallet <strong>${wallet} pts</strong></div></div>
+    <div class="grid rewards-grid">${state.rewards.map(r=>rewardCard(r,wallet)).join('')}</div>
+    <div class="card" style="margin-top:20px"><div class="card-header"><div><h2>How this can work at launch</h2><p>Keep rewards meaningful without creating a huge administrative burden</p></div></div><div class="card-body"><div class="value-grid"><div class="value-card"><div class="value-symbol">1</div><strong>Earn</strong><span>Leaders give points when they catch behaviors worth repeating.</span></div><div class="value-card"><div class="value-symbol">2</div><strong>Save</strong><span>Points accumulate in the employee's personal wallet.</span></div><div class="value-card"><div class="value-symbol">3</div><strong>Choose</strong><span>Employees decide what reward is meaningful to them.</span></div><div class="value-card"><div class="value-symbol">4</div><strong>Redeem</strong><span>Approved rewards create a simple fulfillment queue.</span></div><div class="value-card"><div class="value-symbol">5</div><strong>Celebrate</strong><span>Recognition is visible and reinforces the culture publicly.</span></div></div></div></div>`;
+}
+function rewardCard(r,wallet) {
+  const eligible = wallet >= r.points && r.stock > 0;
+  return `<div class="card reward-card"><div class="reward-visual"><span>${r.icon}</span><span class="reward-cost">${r.points} pts</span></div><div class="reward-body"><h3>${escapeHtml(r.name)}</h3><p>${escapeHtml(r.description)}</p><div class="reward-meta"><span>${r.stock} available</span><span>${eligible?'You can redeem':'Need '+Math.max(0,r.points-wallet)+' more pts'}</span></div><button class="${eligible?'primary-button':'secondary-button'} full redeem-btn" data-reward="${r.id}" ${eligible?'':'disabled'}>${eligible?'Redeem reward':'Locked'}</button></div></div>`;
+}
+
+function renderAdmin() {
+  if (currentRole !== 'leader') return '<div class="empty-state">Admin access is only available in the leader demo.</div>';
+  return `<div class="section-heading"><div><h1>Program Administration</h1><p>A prototype control center for policy, budget, fulfillment, and auditability.</p></div><button class="secondary-button" id="exportBtn">Export activity CSV</button></div>
+    <div class="admin-tabs"><button class="admin-tab active">Program settings</button><button class="admin-tab">Reward fulfillment</button><button class="admin-tab">Audit trail</button></div>
+    <div class="grid admin-grid">
+      <div class="card"><div class="card-header"><div><h2>Program settings</h2><p>Controls Lisa/TJ can finalize before launch</p></div></div><div class="card-body settings-list">
+        <div class="setting-row"><div><div class="setting-title">Program name</div><div class="setting-desc">Working names discussed: Caught Ya Points, Talent Coins, Culture Points.</div></div><div class="setting-control"><input id="programName" value="${escapeHtml(state.program.name)}" /></div></div>
+        <div class="setting-row"><div><div class="setting-title">Monthly leader bank</div><div class="setting-desc">How many points each approved leader can distribute per month.</div></div><div class="setting-control"><input id="leaderBank" type="number" min="25" step="25" value="${state.program.monthlyLeaderBank}" /></div></div>
+        <div class="setting-row"><div><div class="setting-title">High-value approval threshold</div><div class="setting-desc">Awards at or above this amount can require approval in production.</div></div><div class="setting-control"><input id="approvalThreshold" type="number" min="10" step="5" value="${state.program.approvalThreshold}" /></div></div>
+        <div class="setting-row"><div><div class="setting-title">Company recognition feed</div><div class="setting-desc">Allows approved recognition messages to appear company-wide.</div></div><div class="setting-control"><select id="companyFeed"><option value="true" ${state.program.companyFeed?'selected':''}>On</option><option value="false" ${!state.program.companyFeed?'selected':''}>Off</option></select></div></div>
+        <div class="setting-row"><div><div class="setting-title">Physical Caught Ya tokens</div><div class="setting-desc">Track when a leader also hands out a branded physical coin.</div></div><div class="setting-control"><select id="physicalTokens"><option value="true" ${state.program.allowPhysicalToken?'selected':''}>Enabled</option><option value="false" ${!state.program.allowPhysicalToken?'selected':''}>Disabled</option></select></div></div>
+        <button class="primary-button full" id="saveSettings">Save prototype settings</button>
+      </div></div>
+      <div class="grid" style="gap:20px">
+        <div class="card"><div class="card-header"><div><h2>Reward fulfillment queue</h2><p>What Penny/HR/Operations would need to fulfill</p></div></div><div class="card-body">${state.redemptions.length?state.redemptions.map(redemptionRow).join(''):'<div class="empty-state">No redemptions pending.</div>'}</div></div>
+        <div class="card"><div class="card-header"><div><h2>Audit trail</h2><p>Every point movement should be reviewable</p></div></div><div class="card-body audit-list">${state.audit.map(a=>`<div class="audit-row"><div class="audit-icon">${a.icon}</div><div class="audit-text">${a.text}</div><div class="audit-time">${escapeHtml(a.time)}</div></div>`).join('')}</div></div>
+      </div>
+    </div>`;
+}
+function redemptionRow(r) { return `<div class="leader-row"><div class="rank">🎁</div><div class="person-avatar">${initials(r.employee)}</div><div><div class="leader-name">${escapeHtml(r.employee)}</div><div class="leader-location">${escapeHtml(r.reward)} · ${r.points} points</div></div><span class="status-chip" style="padding:5px 8px;font-size:9px;background:#ecf7ef;color:var(--green)">${escapeHtml(r.status)}</span></div>`; }
+
+function bindViewEvents() {
+  document.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', () => { currentView = el.dataset.go; render(); }));
+  document.querySelectorAll('.point-option').forEach(el => el.addEventListener('click', () => {
+    selectedPoints = Number(el.dataset.points);
+    document.querySelectorAll('.point-option').forEach(x => x.classList.toggle('selected', x === el));
+    const submit = document.querySelector('#recognitionForm button[type="submit"]');
+    if (submit) submit.textContent = `Send recognition +${selectedPoints}`;
+  }));
+  const form = document.getElementById('recognitionForm');
+  if (form) form.addEventListener('submit', handleRecognition);
+  document.querySelectorAll('.redeem-btn').forEach(btn => btn.addEventListener('click', handleRedemption));
+  const save = document.getElementById('saveSettings'); if (save) save.addEventListener('click', saveSettings);
+  const exportBtn = document.getElementById('exportBtn'); if (exportBtn) exportBtn.addEventListener('click', exportCSV);
+}
+
+function handleRecognition(e) {
+  e.preventDefault();
+  const employeeId = document.getElementById('awardEmployee').value;
+  const emp = state.employees.find(x=>x.id===employeeId);
+  const value = document.getElementById('awardValue').value;
+  const message = document.getElementById('awardMessage').value.trim();
+  const location = document.getElementById('awardLocation').value || emp?.location;
+  if (!emp || !value || !message) return showToast('Choose a teammate, value, and recognition message.');
+  if (selectedPoints > state.currentLeader.bankRemaining) return showToast('Not enough points left in your leader bank.');
+  state.currentLeader.bankRemaining -= selectedPoints;
+  emp.points += selectedPoints; emp.recognitions += 1;
+  const leader = state.leaders.find(l=>l.id==='tj'); if (leader) leader.given += selectedPoints;
+  const rec = { id: Date.now(), from: state.currentLeader.name, to: emp.name, employeeId: emp.id, points:selectedPoints, value, message, location, physical:document.getElementById('physicalToken').checked, date:'Just now' };
+  state.recognitions.unshift(rec);
+  state.audit.unshift({icon:'✦',text:`<strong>${state.currentLeader.name}</strong> awarded ${selectedPoints} points to ${emp.name}`,time:'Just now'});
+  saveState();
+  openModal(`${emp.name} received ${selectedPoints} points for ${value}. Your remaining leader bank is ${state.currentLeader.bankRemaining} points.`);
+  selectedPoints = 10; currentView = 'dashboard'; render();
+}
+
+function handleRedemption(e) {
+  const reward = state.rewards.find(r=>r.id===e.currentTarget.dataset.reward);
+  const emp = state.employees.find(x=>x.id===state.currentEmployee.id) || state.employees[0];
+  if (!reward) return;
+  const wallet = currentRole === 'employee' ? emp.points : 285;
+  if (wallet < reward.points || reward.stock < 1) return;
+  if (currentRole === 'employee') emp.points -= reward.points;
+  reward.stock -= 1;
+  state.redemptions.unshift({id:Date.now(),employee:currentRole==='employee'?emp.name:'Demo User',reward:reward.name,points:reward.points,status:'Ready to fulfill',date:'Today'});
+  state.audit.unshift({icon:'🎁',text:`<strong>${currentRole==='employee'?emp.name:'Demo User'}</strong> redeemed ${reward.name}`,time:'Just now'});
+  saveState(); render();
+  openModal(`${reward.name} has been added to the fulfillment queue. ${currentRole==='employee'?emp.points+' points remain in your wallet.':'This was a leader-view demo redemption.'}`);
+}
+
+function saveSettings() {
+  state.program.name = document.getElementById('programName').value.trim() || state.program.name;
+  state.program.monthlyLeaderBank = Number(document.getElementById('leaderBank').value) || 250;
+  state.program.approvalThreshold = Number(document.getElementById('approvalThreshold').value) || 50;
+  state.program.companyFeed = document.getElementById('companyFeed').value === 'true';
+  state.program.allowPhysicalToken = document.getElementById('physicalTokens').value === 'true';
+  state.currentLeader.bankTotal = state.program.monthlyLeaderBank;
+  state.leaders.forEach(l=>l.bank=state.program.monthlyLeaderBank);
+  state.audit.unshift({icon:'⚙',text:`<strong>TJ Hammer</strong> updated prototype program settings`,time:'Just now'});
+  saveState();
+  document.querySelector('.brand-subtitle').textContent = state.program.name.replace('Freedom ','');
+  showToast('Prototype settings saved.'); render();
+}
+
+function exportCSV() {
+  const lines = [['Date','From','To','Location','Core Value','Points','Message'], ...state.recognitions.map(r=>[r.date,r.from,r.to,r.location,r.value,r.points,r.message])];
+  const csv = lines.map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='freedom-caught-ya-activity.csv'; a.click(); URL.revokeObjectURL(url); showToast('Activity CSV exported.');
+}
+
+function bindGlobalEvents() {
+  document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>{ currentView=btn.dataset.view; document.getElementById('sidebar').classList.remove('open'); render(); }));
+  document.getElementById('roleSelect').addEventListener('change',e=>{ currentRole=e.target.value; currentView='dashboard'; document.getElementById('profileAvatar').textContent=currentRole==='leader'?'TJ':'AR'; render(); });
+  document.getElementById('mobileMenuBtn').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+  document.getElementById('resetDemoBtn').addEventListener('click',()=>{ state=clone(DEFAULT_DATA); saveState(); selectedPoints=10; currentView='dashboard'; currentRole='leader'; document.getElementById('roleSelect').value='leader'; document.getElementById('profileAvatar').textContent='TJ'; showToast('Demo data reset.'); render(); });
+  document.querySelectorAll('[data-close-modal]').forEach(btn=>btn.addEventListener('click',()=>closeModal(btn.dataset.closeModal)));
+  document.getElementById('confirmModal').addEventListener('click',e=>{ if(e.target.id==='confirmModal') closeModal('confirmModal'); });
+}
+
+bindGlobalEvents();
+document.querySelector('.brand-subtitle').textContent = state.program.name.replace('Freedom ','');
+render();
+
+</script>
+</body>
+</html>
